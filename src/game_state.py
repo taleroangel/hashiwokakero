@@ -1,52 +1,3 @@
-class Bridge:
-    def __init__(self, mtx, origin: tuple, destination: tuple, weight: int) -> None:
-
-        # Verificar que no sea el mismo
-        if origin == destination:
-            raise ValueError("No puede ser igual el origen que el destino")
-
-        # Verificar el peso de los puentes
-        if mtx[origin[0]][origin[1]] < weight:
-            raise ValueError("El origen no puede soportar este puente")
-        if mtx[destination[0]][destination[1]] < weight:
-            raise ValueError("El destino no puede soportar este puente")
-
-        # Verificar que no sean diagonales
-        if not (origin[0] == destination[0] or origin[1] == destination[1]):
-            raise ValueError("No pueden usarse diagonales")
-
-        # Verificar que no pase por encima de otro nodo
-        isHorizontal = (origin[0] == destination[0])
-        if isHorizontal:
-            start = min(origin[1], destination[1]) + 1
-            stop = max(origin[1], destination[1])
-
-            isValid = True
-            for step in range(start, stop):
-                if mtx[origin[0]][step] != 0:
-                    isValid = False
-
-            if not isValid:
-                raise ValueError("Se cruzan nodos")
-
-        else:
-            start = min(origin[0], destination[0]) + 1
-            stop = max(origin[0], destination[0])
-
-            isValid = True
-            for step in range(start, stop):
-                if mtx[step][origin[1]] != 0:
-                    isValid = False
-
-            if not isValid:
-                raise ValueError("Se cruzan nodos")
-
-        # Asignar variables
-        self.origin = origin
-        self.destination = destination
-        self.weight = weight
-
-
 class GameState:
     def __init__(self, filename: str) -> None:
         """
@@ -69,20 +20,128 @@ class GameState:
             # Obtener el resto de líneas
             self.nodes = []
 
-            i = 0  # Contador de columna
-            for row in lines[1:]:
-                self.nodes.append([])  # Agregar una nueva fila
-                for item in row:  # Agregar cada elemento
-                    self.nodes[i].append(int(item))
-                i += 1  # Siguiente columna
+            # Crear la matrix de conexiones vacía
+            self.connections = [
+                [0 for _ in range(self.size)] for _ in range(self.size)]
 
-            # Crear la matrix de puentes vacía
+            for i, row in enumerate(lines[1:]):
+                # Agregar una nueva fila
+                self.nodes.append([])
+
+                # For each item in row
+                for item in row:
+                    # Agregar cada elemento
+                    self.nodes[i].append(int(item))
+
+            # Crear la lista de puentes vacía
             self.bridges = []
 
-    # end __init__
+    def restart(self):
+        self.bridges = []
+        self.connections = [
+            [0 for _ in range(self.size)] for _ in range(self.size)]
 
-    def addBridge(bridge: Bridge):
-        pass
 
-    def removeBridge(bridge: Bridge):
-        pass
+class Bridge:
+    def __init__(self, game: GameState, origin: tuple, destination: tuple) -> None:
+        # Asignar variables
+        self.game = game  # Associated game state
+        self.origin = origin  # Origin node
+        self.destination = destination  # Destination node
+
+        self.weight = 1  # Number of bridges or weight
+        self.wasInit = False  # Initializatoin failure
+
+        # 1. Verificar que no sea el mismo
+        if origin == destination:
+            raise ValueError("Origin equal to Destination")
+
+        # 2. Verificar que no sean diagonales
+        if not ((origin[0] == destination[0]) or (origin[1] == destination[1])):
+            raise ValueError("Cannot be a diagonal")
+
+        # 3. Verificar el peso de los puentes
+        if ((game.connections[origin[0]][origin[1]] >= game.nodes[origin[0]][origin[1]]) or
+                (game.connections[destination[0]][destination[1]]) >= game.nodes[destination[0]][destination[1]]):
+            # Verificar si ya existe y eliminarlo
+            if (self in self.game.bridges):
+                self.game.bridges.remove(self)
+                raise RuntimeWarning(
+                    "Removed existing bridge, exceeded node value")
+            # No puede exceder el valor
+            raise ValueError("Number of bridges cannot exceed node value")
+
+        # 4. Verificar si ya existe el nodo
+        if (self in self.game.bridges):
+            bridge = self.game.bridges[self.game.bridges.index(self)]
+            bridge.weight += 1
+
+            bridge.alterSteps()
+            bridge.appendBridgeToNodes()
+            raise RuntimeWarning("Bridge updated")
+
+        # 5. Verificar si pasa por encima de otros nodos o puentes
+        isHorizontal = (origin[0] == destination[0])
+        axisIndex = 1 if isHorizontal else 0
+        commonAxis = origin[0] if isHorizontal else origin[1]
+
+        # Start end Stop index
+        start = min(origin[axisIndex], destination[axisIndex]) + 1
+        stop = max(origin[axisIndex], destination[axisIndex])
+
+        # Calculate slices
+        for step in range(start, stop):
+            # Check if placing on top of a node
+            if game.nodes[commonAxis if isHorizontal else step][step if isHorizontal else commonAxis] != 0:
+                raise ValueError("Cannot place a bridge on top of a node")
+                # Create the connection slie
+            if game.connections[commonAxis if isHorizontal else step][step if isHorizontal else commonAxis] != 0:
+                raise ValueError("Cannot place a bridge on top of another")
+
+        # Modify value in matrix
+        self.alterSteps()
+        self.appendBridgeToNodes()
+        self.wasInit = True
+
+    def __del__(self):
+        if self.wasInit:
+            self.weight = 0
+            self.alterSteps()
+            self.removeBridgeFromNodes()
+
+    def __eq__(self, __value: object) -> bool:
+        return (isinstance(__value, Bridge) and
+                ((self.origin == __value.origin) and
+                (self.destination == __value.destination)) or
+                ((self.origin == __value.destination) and
+                (self.destination == __value.origin)))
+
+    def __str__(self) -> str:
+        return f'({self.origin}) ({self.destination}) ({self.weight})'
+
+    def appendBridgeToNodes(self):
+        """
+        Add bridge to the total number of bridges connected to a node
+        """
+        self.game.connections[self.origin[0]][self.origin[1]] += 1
+        self.game.connections[self.destination[0]][self.destination[1]] += 1
+
+    def removeBridgeFromNodes(self):
+        """
+        Remove bridge from the total number of bridges connected to a node
+        """
+        self.game.connections[self.origin[0]][self.origin[1]] -= 1
+        self.game.connections[self.destination[0]][self.destination[1]] -= 1
+
+    def alterSteps(self):
+        # 4. Verificar si el puente ya existe o pasa por encima de otros nodos
+        isHorizontal = (self.origin[0] == self.destination[0])
+        axisIndex = 1 if isHorizontal else 0
+        commonAxis = self.origin[0] if isHorizontal else self.origin[1]
+
+        # Start end Stop index
+        start = min(self.origin[axisIndex], self.destination[axisIndex]) + 1
+        stop = max(self.origin[axisIndex], self.destination[axisIndex])
+
+        for step in range(start, stop):
+            self.game.connections[commonAxis if isHorizontal else step][step if isHorizontal else commonAxis] = self.weight

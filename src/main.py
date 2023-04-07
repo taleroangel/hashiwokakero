@@ -1,14 +1,23 @@
-from game_state import GameState, Bridge
-from game_engine import GameEngine
+#!/usr/bin/python3
 
-# Crear el estado del juego
-game = GameState('input.in')
+import argparse
 
-# Print nodes
-print("Nodes:")
-for row in game.nodes:
-    print(row)
+if __name__ == "__main__":
+    # Create argument parser
+    parser = argparse.ArgumentParser(
+        prog='hashiwokakero', description='Hashi game in Python!', epilog='Requires a game board input file')
 
-# Crear el motor de juego
-engine = GameEngine(game)
-engine.gameLoop()
+    # Append arguments
+    parser.add_argument('-f', '--file', help='Input board file', required=True)
+
+    # Get arguments
+    args = parser.parse_args()
+
+    try:
+        # Import and start game
+        from hashiwokakero import hashiwokakero
+        hashiwokakero(args.file)
+    except FileNotFoundError as e:
+        print(f"Error reading board file: {e.args}")
+    except ValueError as e:
+        print(f"Board file has invalid format: {e.args}")
