@@ -1,5 +1,7 @@
 from game_state import GameState, Bridge
 import pygame
+from pygame import gfxdraw
+import os
 
 
 class Colors:
@@ -20,7 +22,7 @@ class GameEngine:
     BLOCK_CENTER = int(BLOCK_SIZE / 2)
 
     # Nodes
-    NODE_CIRCLE_RADIUS = BLOCK_CENTER - (BLOCK_SIZE * 0.2)
+    NODE_CIRCLE_RADIUS = int(BLOCK_CENTER - (BLOCK_SIZE * 0.2))
 
     # Fonts
     LARGE_FONT_SIZE = int(BLOCK_SIZE * 0.4)
@@ -54,6 +56,12 @@ class GameEngine:
         self.screen = pygame.display.set_mode(
             (self.screenSize, self.screenSize))
 
+        # Set icon and caption into screen
+        pygame.display.set_caption("Hashiwokakero")
+        icon = pygame.image.load(os.path.join(
+            os.path.dirname(__file__), '../assets/icon.svg'))
+        pygame.display.set_icon(icon)
+
         # Crear la fuente
         self.largeFont = pygame.font.Font(None, GameEngine.LARGE_FONT_SIZE)
         self.smallFont = pygame.font.Font(None, GameEngine.SMALL_FONT_SIZE)
@@ -77,6 +85,12 @@ class GameEngine:
 
         # Event Loop de Pygame
         while True:
+
+            # Verificar si ha ganado
+            if self.game.hasWon():
+                print("Congratulations!!")
+                return
+
             # Registrar eventos
             for event in pygame.event.get():
                 # Exit event
@@ -101,7 +115,10 @@ class GameEngine:
 
                 # Keyboard press
                 if event.type == pygame.KEYDOWN:
-                    self._buttons[event.key][2]()
+                    try:
+                        self._buttons[event.key][2]()
+                    except:
+                        print("Unrecognized Command")
 
             # Rendering
             self.screen.fill(Colors.BACKGROUND)
@@ -151,6 +168,7 @@ class GameEngine:
         """
         Restart all game variables
         """
+        print("\nRestarted game variables!")
         self.game.restart()
 
     def mouseLineHold(self, latestClick):
@@ -177,8 +195,8 @@ class GameEngine:
                     # Mostrar el nodo
                     pygame.draw.circle(self.screen, Colors.NODES,
                                        [x + GameEngine.BLOCK_CENTER,
-                                        y + GameEngine.BLOCK_CENTER],
-                                       GameEngine.NODE_CIRCLE_RADIUS, 0)
+                                           y + GameEngine.BLOCK_CENTER],
+                                       GameEngine.NODE_CIRCLE_RADIUS)
                     # Crear un texto
                     text = self.largeFont.render(
                         str(self.game.nodes[i][j]), True, Colors.ON_NODES)

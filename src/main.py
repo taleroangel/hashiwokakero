@@ -21,3 +21,5 @@ if __name__ == "__main__":
         print(f"Error reading board file: {e.args}")
     except ValueError as e:
         print(f"Board file has invalid format: {e.args}")
+    except AssertionError as e:
+        print(f"Board file has invalid format!")
