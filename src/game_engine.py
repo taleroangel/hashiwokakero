@@ -1,7 +1,8 @@
 from game_state import GameState, Bridge
 import pygame
-from pygame import gfxdraw
+import automatic
 import os
+import time
 
 
 class Colors:
@@ -44,10 +45,13 @@ class GameEngine:
         """
         return int(coordinates[1] / GameEngine.BLOCK_SIZE), int(coordinates[0] / GameEngine.BLOCK_SIZE)
 
-    def __init__(self, game: GameState) -> None:
+    def __init__(self, game: GameState, playAutomatic=False) -> None:
         # Initialize pygame
         self.game = game
         pygame.init()
+
+        self.automatic: automatic.AutomaticPlayer | None = automatic.AutomaticPlayer(
+            game) if playAutomatic else None
 
         # Variables de pantalla
         self.screenSize = int(game.size * GameEngine.BLOCK_SIZE)
@@ -80,6 +84,9 @@ class GameEngine:
         pygame.quit()
 
     def gameLoop(self):
+
+        latest_play_time = 0
+
         # GameLoop variables
         latestClick = None
 
@@ -97,21 +104,28 @@ class GameEngine:
                 if event.type == pygame.QUIT:
                     return
 
-                # Mouse hold down
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    latestClick = pygame.mouse.get_pos()
+                if self.automatic is None:
+                    # Mouse hold down
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        latestClick = pygame.mouse.get_pos()
 
-                # Mouse hold up
-                if event.type == pygame.MOUSEBUTTONUP:
+                    # Mouse hold up
+                    if event.type == pygame.MOUSEBUTTONUP:
 
-                    # Transformar las coordenadas a índices de matrices
-                    latestClick = GameEngine.fromCoordinatesToMtx(latestClick)
-                    newClick = GameEngine.fromCoordinatesToMtx(
-                        pygame.mouse.get_pos())
+                        # Transformar las coordenadas a índices de matrices
+                        latestClick = GameEngine.fromCoordinatesToMtx(
+                            latestClick)
+                        newClick = GameEngine.fromCoordinatesToMtx(
+                            pygame.mouse.get_pos())
 
-                    # Create bridge
-                    self.createNewBridge(latestClick, newClick)
-                    latestClick = None
+                        # Create bridge
+                        self.createNewBridge(latestClick, newClick)
+                        latestClick = None
+
+                elif time.time() - latest_play_time > 1:
+                    x, y = self.automatic.play()
+                    self.createNewBridge(x, y)
+                    latest_play_time = time.time()
 
                 # Keyboard press
                 if event.type == pygame.KEYDOWN:
@@ -232,8 +246,7 @@ class GameEngine:
         # Calcular la nueva línea
         try:
             # Crear la nueba línea
-            self.game.bridges.append(
-                Bridge(self.game, latestClick, newClick))
+            self.game.addBridge(latestClick, newClick)
         except ValueError as e:
             print(f"\nBridgeError: {e.args[0]}")
         except RuntimeWarning as e:

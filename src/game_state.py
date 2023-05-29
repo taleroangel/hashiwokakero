@@ -14,7 +14,7 @@ class GameState:
 
             # Obtener y guardar el tamaño, (debe ser cuadrado nxn)
             size = lines[0].split(',')
-            assert size[0] == size[1]
+            assert size[0] == size[1], "Matriz is not squared"
             self.size = int(size[0])
 
             # Obtener el resto de líneas
@@ -49,9 +49,11 @@ class GameState:
                     return False
         return True
 
+    def addBridge(self, origin, destination):
+        self.bridges.append(Bridge(self, origin, destination))
+
 
 class Bridge:
-
     BRIDGE_HARD_LIMIT = 2
 
     def __init__(self, game: GameState, origin: tuple, destination: tuple) -> None:
@@ -70,9 +72,6 @@ class Bridge:
         # 2. Verificar que no sean diagonales
         if not ((origin[0] == destination[0]) or (origin[1] == destination[1])):
             raise ValueError("Cannot be a diagonal")
-
-        # 3.1. Verificar el hard limit
-        # TODO: No puede ser mayor a 2
 
         # 3.2. Verificar el peso de los puentes
         if ((game.connections[origin[0]][origin[1]] >= game.nodes[origin[0]][origin[1]]) or

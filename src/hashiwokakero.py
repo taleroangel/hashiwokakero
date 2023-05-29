@@ -1,4 +1,4 @@
-def hashiwokakero(input):
+def hashiwokakero(input: str, automatic: bool):
     """
     Start a new game
     """
@@ -9,7 +9,7 @@ def hashiwokakero(input):
 
     # Crear el motor de juego
     from game_engine import GameEngine
-    engine = GameEngine(game)
+    engine = GameEngine(game, automatic)
     
     # Iniciar el juego
     engine.gameLoop()
