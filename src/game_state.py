@@ -49,8 +49,49 @@ class GameState:
                     return False
         return True
 
+    def checkIfBridge(
+        self,
+        origin: tuple[tuple[int, int], tuple[int, int]],
+        destination: tuple[tuple[int, int], tuple[int, int]]
+    ) -> int:
+        for bridge in self.bridges:
+            if bridge.origin == origin and bridge.destination == destination:
+                return bridge.weight
+
+        return 0
+
     def addBridge(self, origin, destination):
         self.bridges.append(Bridge(self, origin, destination))
+
+    def findNeightbor(
+            self,
+            origin: tuple[tuple[int, int], tuple[int, int]],
+            conditional
+    ) -> tuple[tuple[int, int], tuple[int, int]]:
+
+        idx, jdx = origin
+
+        # Right
+        for k in range(jdx + 1, self.size):
+            if self.nodes[idx][k] > 0 and conditional((idx, k)):
+                return (idx, k)
+
+        # Top
+        for k in range(idx + 1, self.size):
+            if self.nodes[k][jdx] > 0 and conditional((k, jdx)):
+                return (k, jdx)
+
+        # Left
+        for k in range(jdx - 1, -1, -1):
+            if self.nodes[idx][k] > 0 and conditional((idx, k)):
+                return (idx, k)
+
+        # Bottom
+        for k in range(idx - 1, -1, -1):
+            if self.nodes[k][jdx] > 0 and conditional((k, jdx)):
+                return (k, jdx)
+
+        return None
 
 
 class Bridge:

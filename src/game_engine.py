@@ -123,8 +123,13 @@ class GameEngine:
                         latestClick = None
 
                 elif time.time() - latest_play_time > 1:
-                    x, y = self.automatic.play()
-                    self.createNewBridge(x, y)
+                    play = self.automatic.play()
+
+                    if play is not None:
+                        self.createNewBridge(*play)
+                    else:
+                        print("Automatic failed to play")
+
                     latest_play_time = time.time()
 
                 # Keyboard press
