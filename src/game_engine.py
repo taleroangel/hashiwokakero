@@ -98,12 +98,25 @@ class GameEngine:
                 print("Congratulations!!")
                 return
 
+			# Automatic player
+            if (self.automatic is not None) and (time.time() - latest_play_time > 1):
+                play = self.automatic.play()
+
+                if play is not None:
+                    self.createNewBridge(*play)
+                else:
+                    print("Automatic failed to play")
+
+                latest_play_time = time.time()
+
             # Registrar eventos
             for event in pygame.event.get():
+
                 # Exit event
                 if event.type == pygame.QUIT:
                     return
 
+                # Automatic player disabled
                 if self.automatic is None:
                     # Mouse hold down
                     if event.type == pygame.MOUSEBUTTONDOWN:
@@ -121,16 +134,6 @@ class GameEngine:
                         # Create bridge
                         self.createNewBridge(latestClick, newClick)
                         latestClick = None
-
-                elif time.time() - latest_play_time > 0.5:
-                    play = self.automatic.play()
-
-                    if play is not None:
-                        self.createNewBridge(*play)
-                    else:
-                        print("Automatic failed to play")
-
-                    latest_play_time = time.time()
 
                 # Keyboard press
                 if event.type == pygame.KEYDOWN:

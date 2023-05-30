@@ -120,6 +120,62 @@ class GameState:
 
         return None
 
+    def findNeightborConsiderBridges(
+            self,
+            origin: CoordinatesTuple,
+            conditional: Callable[[CoordinatesTuple], bool] = lambda _: True
+    ) -> CoordinatesTuple:
+        """
+        Retona las coordenadas del primer vecino encontrado en cualquier dirección
+        que sea alcanzable dado que no hay puentes en el camino
+        desde un origen, recibe un callback como condicional para evaluar el
+        vecino a retornar
+        """
+
+        idx, jdx = origin
+
+        # Right
+        for k in range(jdx + 1, self.size):
+            if self.connections[idx][k] > 0 and self.nodes[idx][k] == 0:
+                break
+            if self.nodes[idx][k] > 0:
+                if conditional((idx, k)):
+                    return (idx, k)
+                else:
+                    break
+
+        # Top
+        for k in range(idx + 1, self.size):
+            if self.connections[k][jdx] > 0 and self.nodes[k][jdx] == 0:
+                break
+            if self.nodes[k][jdx] > 0:
+                if conditional((k, jdx)):
+                    return (k, jdx)
+                else:
+                    break
+
+        # Left
+        for k in range(jdx - 1, -1, -1):
+            if self.connections[idx][k] > 0 and self.nodes[idx][k] == 0:
+                break
+            if self.nodes[idx][k] > 0:
+                if conditional((idx, k)):
+                    return (idx, k)
+                else:
+                    break
+
+        # Bottom
+        for k in range(idx - 1, -1, -1):
+            if self.connections[k][jdx] > 0 and self.nodes[k][jdx] == 0:
+                break
+            if self.nodes[k][jdx] > 0:
+                if conditional((k, jdx)):
+                    return (k, jdx)
+                else:
+                    break
+
+        return None
+
     def numberOfNeightbors(
             self,
             origin: CoordinatesTuple,
@@ -151,6 +207,48 @@ class GameState:
 
         # Bottom
         for k in range(idx - 1, -1, -1):
+            if self.nodes[k][jdx] > 0:
+                n_nodes += 1
+                break
+
+        return n_nodes
+
+    def numberOfNeightborsConsiderBridges(
+            self,
+            origin: CoordinatesTuple
+    ) -> int:
+
+        idx, jdx = origin
+        n_nodes = 0
+
+        # Right
+        for k in range(jdx + 1, self.size):
+            if self.connections[idx][k] > 0 and self.nodes[idx][k] == 0:
+                break
+            if self.nodes[idx][k] > 0:
+                n_nodes += 1
+                break
+
+        # Top
+        for k in range(idx + 1, self.size):
+            if self.connections[k][jdx] > 0 and self.nodes[k][jdx] == 0:
+                break
+            if self.nodes[k][jdx] > 0:
+                n_nodes += 1
+                break
+
+        # Left
+        for k in range(jdx - 1, -1, -1):
+            if self.connections[idx][k] > 0 and self.nodes[idx][k] == 0:
+                break
+            if self.nodes[idx][k] > 0:
+                n_nodes += 1
+                break
+
+        # Bottom
+        for k in range(idx - 1, -1, -1):
+            if self.connections[k][jdx] > 0 and self.nodes[k][jdx] == 0:
+                break
             if self.nodes[k][jdx] > 0:
                 n_nodes += 1
                 break
