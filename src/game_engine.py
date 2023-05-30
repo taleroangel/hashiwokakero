@@ -122,7 +122,7 @@ class GameEngine:
                         self.createNewBridge(latestClick, newClick)
                         latestClick = None
 
-                elif time.time() - latest_play_time > 1:
+                elif time.time() - latest_play_time > 0.5:
                     play = self.automatic.play()
 
                     if play is not None:
