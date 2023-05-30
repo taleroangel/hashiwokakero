@@ -1,3 +1,8 @@
+from typing import Callable
+
+CoordinatesTuple = tuple[tuple[int, int], tuple[int, int]]
+
+
 class GameState:
     def __init__(self, filename: str) -> None:
         """
@@ -49,11 +54,15 @@ class GameState:
                     return False
         return True
 
-    def checkIfBridge(
+    def checkBridgeWeight(
         self,
-        origin: tuple[tuple[int, int], tuple[int, int]],
-        destination: tuple[tuple[int, int], tuple[int, int]]
+        origin: CoordinatesTuple,
+        destination: CoordinatesTuple
     ) -> int:
+        """
+        Verificar cuántos puentes hay entre origen y destino
+        """
+
         for bridge in self.bridges:
             if bridge.origin == origin and bridge.destination == destination:
                 return bridge.weight
@@ -65,9 +74,14 @@ class GameState:
 
     def findNeightbor(
             self,
-            origin: tuple[tuple[int, int], tuple[int, int]],
-            conditional
-    ) -> tuple[tuple[int, int], tuple[int, int]]:
+            origin: CoordinatesTuple,
+            conditional: Callable[[CoordinatesTuple], bool]
+    ) -> CoordinatesTuple:
+        """
+        Retona las coordenadas del primer vecino encontrado en cualquier dirección
+        desde un origen, recibe un callback como condicional para evaluar el
+        vecino a retornar
+        """
 
         idx, jdx = origin
 
