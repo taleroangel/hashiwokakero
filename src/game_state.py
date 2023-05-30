@@ -192,6 +192,7 @@ class GameState:
     def numberOfNeightbors(
             self,
             origin: CoordinatesTuple,
+            conditional: Callable[[CoordinatesTuple], bool] = lambda _: True
     ) -> int:
         """
         Retona el numero de vecinos de un nodo
@@ -206,32 +207,37 @@ class GameState:
         # Right
         for k in range(jdx + 1, self.size):
             if self.nodes[idx][k] > 0:
-                n_nodes += 1
+                if (self.nodes[idx][k] != self.connections[idx][k]) and conditional((idx, k)):
+                    n_nodes += 1
                 break
 
         # Top
         for k in range(idx + 1, self.size):
             if self.nodes[k][jdx] > 0:
-                n_nodes += 1
+                if (self.nodes[k][jdx] != self.connections[k][jdx]) and conditional((k, jdx)):
+                    n_nodes += 1
                 break
 
         # Left
         for k in range(jdx - 1, -1, -1):
             if self.nodes[idx][k] > 0:
-                n_nodes += 1
+                if (self.nodes[idx][k] != self.connections[idx][k]) and conditional((idx, k)):
+                    n_nodes += 1
                 break
 
         # Bottom
         for k in range(idx - 1, -1, -1):
             if self.nodes[k][jdx] > 0:
-                n_nodes += 1
+                if (self.nodes[k][jdx] != self.connections[k][jdx]) and conditional((k, jdx)):
+                    n_nodes += 1
                 break
 
         return n_nodes
 
     def numberOfNeightborsConsiderBridges(
             self,
-            origin: CoordinatesTuple
+            origin: CoordinatesTuple,
+            conditional: Callable[[CoordinatesTuple], bool] = lambda _: True
     ) -> int:
 
         idx, jdx = origin
@@ -246,7 +252,7 @@ class GameState:
                 break
             if (self.nodes[idx][k] > 0):  # If node was detected
                 # If node supports one more
-                if (self.nodes[idx][k] != self.connections[idx][k]):
+                if (self.nodes[idx][k] != self.connections[idx][k]) and conditional((idx, k)):
                     n_nodes += 1
                 break
 
@@ -255,7 +261,7 @@ class GameState:
             if self.connections[k][jdx] > 0 and self.nodes[k][jdx] == 0:
                 break
             if self.nodes[k][jdx] > 0:
-                if (self.nodes[k][jdx] != self.connections[k][jdx]):
+                if (self.nodes[k][jdx] != self.connections[k][jdx]) and conditional((k, jdx)):
                     n_nodes += 1
                 break
 
@@ -264,7 +270,7 @@ class GameState:
             if self.connections[idx][k] > 0 and self.nodes[idx][k] == 0:
                 break
             if self.nodes[idx][k] > 0:
-                if (self.nodes[idx][k] != self.connections[idx][k]):
+                if (self.nodes[idx][k] != self.connections[idx][k]) and conditional((idx, k)):
                     n_nodes += 1
                 break
 
@@ -273,7 +279,7 @@ class GameState:
             if self.connections[k][jdx] > 0 and self.nodes[k][jdx] == 0:
                 break
             if self.nodes[k][jdx] > 0:
-                if (self.nodes[k][jdx] != self.connections[k][jdx]):
+                if (self.nodes[k][jdx] != self.connections[k][jdx]) and conditional((k, jdx)):
                     n_nodes += 1
                 break
 

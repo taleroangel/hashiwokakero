@@ -4,6 +4,8 @@ import automatic
 import os
 import time
 
+AUTOMATIC_PLAY_RATE = 0.5
+
 
 class Colors:
     BACKGROUND = '#DDD7EF'
@@ -98,8 +100,8 @@ class GameEngine:
                 print("Congratulations!!")
                 return
 
-			# Automatic player
-            if (self.automatic is not None) and (time.time() - latest_play_time > 1):
+                # Automatic player
+            if (self.automatic is not None) and (time.time() - latest_play_time > AUTOMATIC_PLAY_RATE):
                 play = self.automatic.play()
 
                 if play is not None:

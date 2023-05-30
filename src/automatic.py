@@ -42,12 +42,12 @@ class AutomaticPlayer:
                 # * --- ONE WAY CONNECTION --- * #
 
                 # Calculate number of nodes
-                n_nodes = self.game.numberOfNeightbors(origin)
+                n_nodes = self.game.numberOfNeightborsConsiderBridges(origin)
 
                 # If exactly one
                 if n_nodes == 1:
                     # Get the neightbor
-                    destination = self.game.findNeightbor(origin)
+                    destination = self.game.findNeightborConsiderBridges(origin)
 
                     # Get bridges
                     if self.game.checkBridgeWeight(origin, destination) < min(
@@ -55,9 +55,20 @@ class AutomaticPlayer:
                     ):
                         print(f'[Heuristic] OneWayConnection')
                         return (origin, destination)
-                    
+
                 # * --- Do Not Connect Islands Of One Between themselves -- * #
-                
+
+                if node == 1:
+                    n_nodes_valid = self.game.numberOfNeightborsConsiderBridges(
+                        origin, conditional=lambda x: self.game.nodes[x[0]][x[1]] > 1)
+
+                    if n_nodes_valid == 1:
+                        destination = self.game.findNeightborConsiderBridges(
+                            origin, conditional=lambda x: self.game.nodes[x[0]][x[1]] > 1
+                        )
+                        
+                        print(f'[Heuristic] DoNotConnectIslandsOf1BetweenThemselves')
+                        return (origin, destination)
 
                 # * --- FOUND 8 NODE --- * #
 
