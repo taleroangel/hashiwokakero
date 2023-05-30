@@ -28,11 +28,6 @@ class AutomaticPlayer:
     # HEURISTICAS: https://www.hashi.info/how-to-solve
 
     def play_heuristics(self) -> gs.CoordinatesTuple | None:
-        """
-        Si hay un 8, entonces todos sus puentes están al máximo
-        Si hay un 7, hay al menos un puente en cada lado
-        """
-
         for idx, rows in enumerate(self.game.nodes):
             for jdx, node in enumerate(rows):
 
@@ -42,12 +37,12 @@ class AutomaticPlayer:
                 # * --- ONE WAY CONNECTION --- * #
 
                 # Calculate number of nodes
-                n_nodes = self.game.numberOfNeightborsConsiderBridges(origin)
+                n_nodes = self.game.numberOfNeightbors(origin)
 
                 # If exactly one
                 if n_nodes == 1:
                     # Get the neightbor
-                    destination = self.game.findNeightborConsiderBridges(origin)
+                    destination = self.game.findNeightbor(origin)
 
                     # Get bridges
                     if self.game.checkBridgeWeight(origin, destination) < min(
@@ -66,8 +61,9 @@ class AutomaticPlayer:
                         destination = self.game.findNeightborConsiderBridges(
                             origin, conditional=lambda x: self.game.nodes[x[0]][x[1]] > 1
                         )
-                        
-                        print(f'[Heuristic] DoNotConnectIslandsOf1BetweenThemselves')
+
+                        print(
+                            f'[Heuristic] DoNotConnectIslandsOf1BetweenThemselves')
                         return (origin, destination)
 
                 # * --- FOUND 8 NODE --- * #
