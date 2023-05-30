@@ -55,6 +55,9 @@ class AutomaticPlayer:
                     ):
                         print(f'[Heuristic] OneWayConnection')
                         return (origin, destination)
+                    
+                # * --- Do Not Connect Islands Of One Between themselves -- * #
+                
 
                 # * --- FOUND 8 NODE --- * #
 

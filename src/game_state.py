@@ -84,12 +84,16 @@ class GameState:
         vecino a retornar
         """
 
+        if (self.nodes[origin[0]][origin[1]] == self.connections[origin[0]][origin[1]]):
+            return None
+
         idx, jdx = origin
 
         # Right
         for k in range(jdx + 1, self.size):
-            if self.nodes[idx][k] > 0:
-                if conditional((idx, k)):
+            if self.nodes[idx][k] > 0:  # Si encuentra un nodo
+                if ((self.connections[idx][k] != self.nodes[idx][k])  # Node supports connections
+                        and conditional((idx, k))):  # Additional, parameter condition
                     return (idx, k)
                 else:
                     break
@@ -97,7 +101,8 @@ class GameState:
         # Top
         for k in range(idx + 1, self.size):
             if self.nodes[k][jdx] > 0:
-                if conditional((k, jdx)):
+                if ((self.connections[k][jdx] != self.nodes[k][jdx]) and
+                        conditional((k, jdx))):
                     return (k, jdx)
                 else:
                     break
@@ -105,7 +110,8 @@ class GameState:
         # Left
         for k in range(jdx - 1, -1, -1):
             if self.nodes[idx][k] > 0:
-                if conditional((idx, k)):
+                if ((self.connections[idx][k] != self.nodes[idx][k]) and
+                        conditional((idx, k))):
                     return (idx, k)
                 else:
                     break
@@ -113,7 +119,8 @@ class GameState:
         # Bottom
         for k in range(idx - 1, -1, -1):
             if self.nodes[k][jdx] > 0:
-                if conditional((k, jdx)):
+                if ((self.connections[k][jdx] != self.nodes[k][jdx]) and
+                        conditional((k, jdx))):
                     return (k, jdx)
                 else:
                     break
@@ -131,6 +138,8 @@ class GameState:
         desde un origen, recibe un callback como condicional para evaluar el
         vecino a retornar
         """
+        if (self.nodes[origin[0]][origin[1]] == self.connections[origin[0]][origin[1]]):
+            return None
 
         idx, jdx = origin
 
@@ -139,7 +148,8 @@ class GameState:
             if self.connections[idx][k] > 0 and self.nodes[idx][k] == 0:
                 break
             if self.nodes[idx][k] > 0:
-                if conditional((idx, k)):
+                if ((self.connections[idx][k] != self.nodes[idx][k]) and
+                        conditional((idx, k))):
                     return (idx, k)
                 else:
                     break
@@ -149,7 +159,8 @@ class GameState:
             if self.connections[k][jdx] > 0 and self.nodes[k][jdx] == 0:
                 break
             if self.nodes[k][jdx] > 0:
-                if conditional((k, jdx)):
+                if ((self.connections[k][jdx] != self.nodes[k][jdx]) and
+                        conditional((k, jdx))):
                     return (k, jdx)
                 else:
                     break
@@ -159,7 +170,8 @@ class GameState:
             if self.connections[idx][k] > 0 and self.nodes[idx][k] == 0:
                 break
             if self.nodes[idx][k] > 0:
-                if conditional((idx, k)):
+                if ((self.connections[idx][k] != self.nodes[idx][k]) and
+                        conditional((idx, k))):
                     return (idx, k)
                 else:
                     break
@@ -169,7 +181,8 @@ class GameState:
             if self.connections[k][jdx] > 0 and self.nodes[k][jdx] == 0:
                 break
             if self.nodes[k][jdx] > 0:
-                if conditional((k, jdx)):
+                if ((self.connections[k][jdx] != self.nodes[k][jdx]) and
+                        conditional((k, jdx))):
                     return (k, jdx)
                 else:
                     break
@@ -183,6 +196,9 @@ class GameState:
         """
         Retona el numero de vecinos de un nodo
         """
+
+        if (self.nodes[origin[0]][origin[1]] == self.connections[origin[0]][origin[1]]):
+            return 0
 
         idx, jdx = origin
         n_nodes = 0
@@ -221,12 +237,17 @@ class GameState:
         idx, jdx = origin
         n_nodes = 0
 
+        if (self.nodes[origin[0]][origin[1]] == self.connections[origin[0]][origin[1]]):
+            return 0
+
         # Right
         for k in range(jdx + 1, self.size):
             if self.connections[idx][k] > 0 and self.nodes[idx][k] == 0:
                 break
-            if self.nodes[idx][k] > 0:
-                n_nodes += 1
+            if (self.nodes[idx][k] > 0):  # If node was detected
+                # If node supports one more
+                if (self.nodes[idx][k] != self.connections[idx][k]):
+                    n_nodes += 1
                 break
 
         # Top
@@ -234,7 +255,8 @@ class GameState:
             if self.connections[k][jdx] > 0 and self.nodes[k][jdx] == 0:
                 break
             if self.nodes[k][jdx] > 0:
-                n_nodes += 1
+                if (self.nodes[k][jdx] != self.connections[k][jdx]):
+                    n_nodes += 1
                 break
 
         # Left
@@ -242,7 +264,8 @@ class GameState:
             if self.connections[idx][k] > 0 and self.nodes[idx][k] == 0:
                 break
             if self.nodes[idx][k] > 0:
-                n_nodes += 1
+                if (self.nodes[idx][k] != self.connections[idx][k]):
+                    n_nodes += 1
                 break
 
         # Bottom
@@ -250,7 +273,8 @@ class GameState:
             if self.connections[k][jdx] > 0 and self.nodes[k][jdx] == 0:
                 break
             if self.nodes[k][jdx] > 0:
-                n_nodes += 1
+                if (self.nodes[k][jdx] != self.connections[k][jdx]):
+                    n_nodes += 1
                 break
 
         return n_nodes
