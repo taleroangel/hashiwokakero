@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Optional, List
 
 CoordinatesTuple = tuple[tuple[int, int], tuple[int, int]]
 
@@ -131,7 +131,7 @@ class GameState:
             self,
             origin: CoordinatesTuple,
             conditional: Callable[[CoordinatesTuple], bool] = lambda _: True
-    ) -> CoordinatesTuple:
+    ) -> Optional[List[CoordinatesTuple]]:
         """
         Retona las coordenadas del primer vecino encontrado en cualquier dirección
         que sea alcanzable dado que no hay puentes en el camino
@@ -142,6 +142,7 @@ class GameState:
             return None
 
         idx, jdx = origin
+        destinations = []
 
         # Right
         for k in range(jdx + 1, self.size):
@@ -150,9 +151,8 @@ class GameState:
             if self.nodes[idx][k] > 0:
                 if ((self.connections[idx][k] != self.nodes[idx][k]) and
                         conditional((idx, k))):
-                    return (idx, k)
-                else:
-                    break
+                    destinations.append((idx, k))
+                break
 
         # Top
         for k in range(idx + 1, self.size):
@@ -161,9 +161,8 @@ class GameState:
             if self.nodes[k][jdx] > 0:
                 if ((self.connections[k][jdx] != self.nodes[k][jdx]) and
                         conditional((k, jdx))):
-                    return (k, jdx)
-                else:
-                    break
+                    destinations.append((k, jdx))
+                break
 
         # Left
         for k in range(jdx - 1, -1, -1):
@@ -172,9 +171,8 @@ class GameState:
             if self.nodes[idx][k] > 0:
                 if ((self.connections[idx][k] != self.nodes[idx][k]) and
                         conditional((idx, k))):
-                    return (idx, k)
-                else:
-                    break
+                    destinations.append((idx, k))
+                break
 
         # Bottom
         for k in range(idx - 1, -1, -1):
@@ -183,9 +181,11 @@ class GameState:
             if self.nodes[k][jdx] > 0:
                 if ((self.connections[k][jdx] != self.nodes[k][jdx]) and
                         conditional((k, jdx))):
-                    return (k, jdx)
-                else:
-                    break
+                    destinations.append((k, jdx))
+                break
+
+        if destinations:
+            return destinations
 
         return None
 

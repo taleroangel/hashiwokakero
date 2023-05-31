@@ -103,7 +103,6 @@ class GameEngine:
                 # Automatic player
             if (self.automatic is not None) and (time.time() - latest_play_time > AUTOMATIC_PLAY_RATE):
                 play = self.automatic.play()
-
                 if play is not None:
                     self.createNewBridge(*play)
                 else:
