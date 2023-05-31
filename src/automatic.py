@@ -19,11 +19,13 @@ class AutomaticPlayer:
             return heuristics
 
         # Si no hay una heurística para jugar
+        bruteforce = self.play_bruteforce()
+        if bruteforce is not None:
+            print(f"Automatic plays [?]: {bruteforce}")
+            return bruteforce
+
         else:
-            bruteforce = self.play_bruteforce()
-            if bruteforce is not None:
-                print(f"Automatic plays [?]: {bruteforce}")
-                return bruteforce
+            print('NO moves to play')
 
     # --- HEURISTICAS ---
     # HEURISTICAS: https://www.hashi.info/how-to-solve
@@ -67,7 +69,6 @@ class AutomaticPlayer:
                             f'[Heuristic] DoNotConnectIslandsOf1BetweenThemselves')
                         return (origin, destination[0])
 
-
                 # * --- FOUND 8 NODE --- * #
 
                 # Found Eight
@@ -103,14 +104,11 @@ class AutomaticPlayer:
 
                     # Get bridges
                     if self.game.checkBridgeWeight(origin, destination[0]) < min(
-                        node, self.game.nodes[destination[0][0]][destination[0][1]],
+                        node, self.game.nodes[destination[0]
+                                              [0]][destination[0][1]],
                     ):
                         print(f'[Heuristic] OneOneConnectionConsiderBridges')
                         return (origin, destination[0])
-
-
-
-
 
         print(f'No [Heuristic] found')
         return None
@@ -121,11 +119,17 @@ class AutomaticPlayer:
                 origin = (idx, jdx)
 
                 # Calculate number of nodes
-                n_nodes = self.game.numberOfNeightbors(origin)
-                if n_nodes == node:
-                    destinations = self.game.findNeightborConsiderBridges(origin)
+                n_nodes = self.game.numberOfNeightborsConsiderBridges(origin)
+                
+                if n_nodes < node:
+                    destinations = self.game.findNeightborConsiderBridges(
+                        origin)
+                    
                     if destinations is not None:
-                        if len(destinations) == node:
+                        if len(destinations) < node:
                             for destination in destinations:
                                 print(f'[Bruteforce] CompleteConnections')
                                 return (origin, destination)
+        
+        print('No [bruteforce] solution found')
+        return None
