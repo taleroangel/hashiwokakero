@@ -4,7 +4,7 @@ import automatic
 import os
 import time
 
-AUTOMATIC_PLAY_RATE = 1
+AUTOMATIC_PLAY_RATE = 0.25
 
 class Colors:
     BACKGROUND = '#DDD7EF'
